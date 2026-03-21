@@ -33,6 +33,31 @@ class EntityResolver:
         self.parser = parser
         logger.info("EntityResolver initialized")
 
+    def detect_date_type(self, date_str: str) -> str:
+        """
+        Detect if query contains specific date or just year
+
+        Args:
+            date_str: Extracted date string
+
+        Returns:
+            'year_only', 'month_year', or 'specific_date'
+        """
+        import re
+
+        # Year-only patterns: "2029", "2035", "in 2035", "at 2029"
+        if re.match(r'^\d{4}$', date_str.strip()):
+            return 'year_only'
+        if re.match(r'^(?:in|at)\s+20\d{2}$', date_str.strip(), re.IGNORECASE):
+            return 'year_only'
+
+        # Month + Year: "August 2029"
+        if re.match(r'^[A-Z][a-z]+\s+20\d{2}$', date_str.strip()):
+            return 'month_year'
+
+        # Everything else is specific date
+        return 'specific_date'
+
     def parse_date(self, date_str: str) -> Optional[datetime]:
         """
         Parse date string to datetime object
@@ -110,9 +135,11 @@ class EntityResolver:
         if parsed['location']:
             coords = self.resolve_location(parsed['location'])
 
-        # Step 3: Parse date to datetime
+        # Step 3: Parse date to datetime and detect type
         parsed_date = None
+        query_type = 'specific_date'  # default
         if parsed['date']:
+            query_type = self.detect_date_type(parsed['date'])
             parsed_date = self.parse_date(parsed['date'])
 
         # Step 4: Build result
@@ -124,6 +151,7 @@ class EntityResolver:
             'lon': coords[1] if coords else None,
             'date_str': parsed['date'],
             'date': parsed_date,
+            'query_type': query_type,  # NEW: track query type
             'intent': parsed['intent'],
             'valid': coords is not None and parsed_date is not None
         }

@@ -74,29 +74,58 @@ class ChatbotOrchestrator:
                 'resolved': resolved
             }
 
-        # Step 2: Make prediction
+        # Step 2: Make prediction (route based on query type)
         try:
-            prediction = self.predictor.predict(
-                lat=resolved['lat'],
-                lon=resolved['lon'],
-                date=resolved['date']
-            )
+            query_type = resolved.get('query_type', 'specific_date')
 
-            # Step 3: Combine results
-            result = {
-                'success': True,
-                'query': query,
-                'location_name': resolved['location_name'],
-                'coordinates': (resolved['lat'], resolved['lon']),
-                'date': resolved['date'].strftime('%Y-%m-%d'),
-                'probability': prediction['probability'],
-                'risk_level': prediction['risk_level'],
-                'season': prediction['season'],
-                'prediction': prediction,
-                'resolved': resolved
-            }
+            if query_type == 'year_only':
+                # Year-only prediction: predict all 12 months
+                logger.info("Detected year-only query - predicting for entire year")
+                yearly_data = self.predictor.predict_year(
+                    latitude=resolved['lat'],
+                    longitude=resolved['lon'],
+                    year=resolved['year']
+                )
 
-            logger.info(f"Prediction: {prediction['probability']:.1%} ({prediction['risk_level']} risk)")
+                # Step 3: Combine results for year-only query
+                result = {
+                    'success': True,
+                    'query': query,
+                    'query_type': 'year_only',
+                    'location_name': resolved['location_name'],
+                    'coordinates': (resolved['lat'], resolved['lon']),
+                    'year': resolved['year'],
+                    'yearly_data': yearly_data,
+                    'resolved': resolved
+                }
+
+                logger.info(f"Year prediction complete: avg={yearly_data['average_probability']:.1%}")
+
+            else:
+                # Specific date prediction: single prediction
+                logger.info("Detected specific-date query - predicting for single date")
+                prediction = self.predictor.predict(
+                    lat=resolved['lat'],
+                    lon=resolved['lon'],
+                    date=resolved['date']
+                )
+
+                # Step 3: Combine results for specific date
+                result = {
+                    'success': True,
+                    'query': query,
+                    'query_type': 'specific_date',
+                    'location_name': resolved['location_name'],
+                    'coordinates': (resolved['lat'], resolved['lon']),
+                    'date': resolved['date'].strftime('%Y-%m-%d'),
+                    'probability': prediction['probability'],
+                    'risk_level': prediction['risk_level'],
+                    'season': prediction['season'],
+                    'prediction': prediction,
+                    'resolved': resolved
+                }
+
+                logger.info(f"Prediction: {prediction['probability']:.1%} ({prediction['risk_level']} risk)")
 
             return result
 

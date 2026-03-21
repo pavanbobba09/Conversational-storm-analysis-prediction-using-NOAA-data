@@ -136,6 +136,11 @@ class QueryParser:
             r'(\d{1,2}[/-]\d{1,2}[/-]\d{4})',
             # "2028-08-18" (ISO format)
             r'(\d{4}-\d{2}-\d{2})',
+            # Month + Year: "August 2029", "July 2035"
+            r'([A-Z][a-z]+\s+20\d{2})',
+            # Year only: "in 2035", "at 2029", "2028"
+            r'(?:in|at)\s+(20\d{2})',
+            r'\b(20\d{2})\b',
             # Relative: "next summer", "tomorrow", "next week"
             r'(next\s+(?:week|month|year|summer|winter|spring|fall))',
             r'(tomorrow|today)',

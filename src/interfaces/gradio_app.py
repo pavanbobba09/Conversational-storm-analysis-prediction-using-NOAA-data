@@ -60,11 +60,31 @@ class GradioStormChatbot:
                 # Generate response
                 response = self.response_generator.generate_response(result)
 
-                # Extract metadata
-                probability = f"{result['probability']:.1%}"
-                risk_level = result['risk_level']
+                # Extract metadata based on query type
+                query_type = result.get('query_type', 'specific_date')
                 location = f"{result['location_name']} ({result['coordinates'][0]:.2f}, {result['coordinates'][1]:.2f})"
-                date = f"{result['date']} ({result['season']})"
+
+                if query_type == 'year_only':
+                    # Year-only query metadata
+                    yearly_data = result['yearly_data']
+                    probability = f"{yearly_data['average_probability']:.1%} (annual avg)"
+
+                    # Determine overall risk based on average
+                    avg_prob = yearly_data['average_probability']
+                    if avg_prob < 0.3:
+                        risk_level = "Low (annual)"
+                    elif avg_prob < 0.6:
+                        risk_level = "Medium (annual)"
+                    else:
+                        risk_level = "High (annual)"
+
+                    date = f"Year {result['year']} (all months)"
+
+                else:
+                    # Specific date query metadata
+                    probability = f"{result['probability']:.1%}"
+                    risk_level = result['risk_level']
+                    date = f"{result['date']} ({result['season']})"
 
                 return (response, probability, risk_level, location, date)
 

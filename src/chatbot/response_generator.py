@@ -27,6 +27,24 @@ class ResponseGenerator:
         if not result['success']:
             return result.get('error', "I couldn't process your query. Please try again.")
 
+        # Route based on query type
+        query_type = result.get('query_type', 'specific_date')
+
+        if query_type == 'year_only':
+            return self.generate_yearly_response(result)
+        else:
+            return self.generate_specific_date_response(result)
+
+    def generate_specific_date_response(self, result: Dict) -> str:
+        """
+        Generate response for specific date queries
+
+        Args:
+            result: Prediction result dictionary
+
+        Returns:
+            Formatted response
+        """
         # Extract data
         location = result['location_name']
         date = result['date']
@@ -56,6 +74,57 @@ class ResponseGenerator:
         )
 
         response += disclaimer
+
+        return response
+
+    def generate_yearly_response(self, result: Dict) -> str:
+        """
+        Generate response for year-only queries
+
+        Args:
+            result: Prediction result with yearly_data
+
+        Returns:
+            Formatted response with monthly breakdown
+        """
+        location = result['location_name']
+        year = result['year']
+        yearly_data = result['yearly_data']
+
+        # Build response header
+        response = f"## Storm Risk Forecast for {location} in {year}\n\n"
+
+        # Peak months
+        if yearly_data['peak_months']:
+            response += "**Peak Risk Months (High):**\n"
+            for month_data in yearly_data['monthly_predictions']:
+                if month_data['month_name'] in yearly_data['peak_months']:
+                    response += f"- **{month_data['month_name']}**: {month_data['probability']:.1%} probability\n"
+            response += "\n"
+
+        # Low months
+        if yearly_data['low_months']:
+            response += "**Low Risk Months:**\n"
+            for month_data in yearly_data['monthly_predictions']:
+                if month_data['month_name'] in yearly_data['low_months']:
+                    response += f"- {month_data['month_name']}: {month_data['probability']:.1%} probability\n"
+            response += "\n"
+
+        # Overall average
+        avg = yearly_data['average_probability']
+        response += f"**Annual Average Risk**: {avg:.1%}\n\n"
+
+        # Seasonal advice based on peak months
+        if yearly_data['peak_months']:
+            peak_list = ", ".join(yearly_data['peak_months'])
+            response += f"**Recommendation**: Highest storm activity expected in {peak_list}. "
+            response += "Monitor weather forecasts closely during these months.\n"
+
+        # Disclaimer
+        response += (
+            "\n_Note: This prediction is based on historical weather patterns from 2015-2025 "
+            "and should not be used as a substitute for professional weather forecasts._"
+        )
 
         return response
 

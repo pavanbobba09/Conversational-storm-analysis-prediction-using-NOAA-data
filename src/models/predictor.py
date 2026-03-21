@@ -246,6 +246,61 @@ class StormPredictor:
 
         return pd.DataFrame(results)
 
+    def predict_year(self, latitude: float, longitude: float, year: int) -> dict:
+        """
+        Predict storm probability for all 12 months of a year
+
+        Args:
+            latitude: Location latitude
+            longitude: Location longitude
+            year: Year to predict (e.g., 2035)
+
+        Returns:
+            Dictionary with monthly predictions and summary
+        """
+        logger.info(f"Predicting for entire year: {year} at ({latitude:.2f}, {longitude:.2f})")
+
+        monthly_predictions = []
+
+        # Predict for each month (using 15th as representative day)
+        for month in range(1, 13):
+            try:
+                date = datetime(year, month, 15)
+                result = self.predict(latitude, longitude, date)
+
+                monthly_predictions.append({
+                    'month': month,
+                    'month_name': date.strftime('%B'),
+                    'probability': result['probability'],
+                    'risk_level': result['risk_level']
+                })
+
+            except Exception as e:
+                logger.warning(f"Could not predict for {year}-{month:02d}: {e}")
+                continue
+
+        # Identify peak and low risk months
+        sorted_months = sorted(monthly_predictions, key=lambda x: x['probability'], reverse=True)
+
+        # Peak months (top 3 with >60% probability)
+        peak_months = [m['month_name'] for m in sorted_months[:3] if m['probability'] > 0.6]
+
+        # Low risk months (bottom 3 with <30% probability)
+        low_months = [m['month_name'] for m in sorted_months[-3:] if m['probability'] < 0.3]
+
+        # Calculate average
+        avg_probability = sum(m['probability'] for m in monthly_predictions) / len(monthly_predictions)
+
+        logger.info(f"Year prediction complete: avg={avg_probability:.2%}, peak={peak_months}, low={low_months}")
+
+        return {
+            'year': year,
+            'monthly_predictions': monthly_predictions,
+            'peak_months': peak_months,
+            'low_months': low_months,
+            'average_probability': avg_probability
+        }
+
 
 def main():
     """
