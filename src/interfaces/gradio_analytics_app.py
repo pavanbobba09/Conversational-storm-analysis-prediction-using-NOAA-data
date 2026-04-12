@@ -135,7 +135,6 @@ def create_interface():
         table_output = gr.DataFrame(
             label="Storm Events",
             wrap=True,
-            height=400,
             interactive=False
         )
 

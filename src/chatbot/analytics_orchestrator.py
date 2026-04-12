@@ -43,8 +43,8 @@ class AnalyticsOrchestrator:
             print(f"❌ {e}")
             raise
 
-        data_file = data_path or str(DATA_PATH)
-        self.engine = StormQueryEngine(data_file)
+        # Use cache manager for fast pickle loading (3x faster than parquet)
+        self.engine = StormQueryEngine(data_path=None, use_cache=True)
         print("✅ Query engine initialized")
 
         try:
@@ -79,41 +79,70 @@ class AnalyticsOrchestrator:
                 'metadata': dict (query info, counts, etc.)
             }
         """
+        import time
+
         try:
-            print(f"\n📝 Processing query: \"{query}\"")
+            query_start = time.time()
+            print(f"\n{'='*80}")
+            print(f"📝 PROCESSING QUERY: \"{query}\"")
+            print(f"{'='*80}")
 
-            # Step 1: Parse query with Gemini
-            print("  🔍 Parsing query with Gemini...")
+            # Step 1: Parse query with Groq
+            print("\n⏱️  STEP 1/5: Parsing query with Groq LLM...")
+            step_start = time.time()
             parsed = self.parser.parse(query)
-            print(f"  ✅ Parsed: {parsed['query_type']}")
+            step_time = time.time() - step_start
+            print(f"   ✅ Parsed successfully in {step_time:.2f}s")
+            print(f"   📋 Query type: {parsed['query_type']}")
+            print(f"   🔍 Filters: {parsed.get('filters', {})}")
 
-            # Step 2: Execute query
-            print("  🔎 Filtering NOAA data...")
+            # Step 2: Execute query on NOAA data
+            print(f"\n⏱️  STEP 2/5: Filtering 1.9M NOAA records...")
+            step_start = time.time()
             results = self.engine.execute_query(parsed)
-            print(f"  ✅ Found {results['summary']['total_events']:,} events")
+            step_time = time.time() - step_start
+            result_count = results['summary']['total_events']
+            print(f"   ✅ Filtered data in {step_time:.2f}s")
+            print(f"   📊 Results: {result_count:,} events found")
+            if result_count > 10000:
+                print(f"   ⚠️  Large result set ({result_count:,} rows) - Excel generation will take longer")
 
-            # Step 3: Generate narrative with Gemini
-            print("  📄 Generating narrative with Gemini...")
+            # Step 3: Generate narrative with Groq
+            print(f"\n⏱️  STEP 3/5: Generating narrative with Groq LLM...")
+            step_start = time.time()
             narrative = self.response_generator.generate_response(parsed, results)
-            print("  ✅ Narrative generated")
+            step_time = time.time() - step_start
+            print(f"   ✅ Narrative generated in {step_time:.2f}s")
 
             # Step 4: Format table for display
-            print("  📋 Formatting data table...")
+            print(f"\n⏱️  STEP 4/5: Formatting table for display...")
+            step_start = time.time()
             display_table = self.table_formatter.format_for_display(
                 results['data'],
                 parsed,
                 results.get('aggregated')
             )
-            print(f"  ✅ Table formatted ({len(display_table)} rows for display)")
+            step_time = time.time() - step_start
+            print(f"   ✅ Table formatted in {step_time:.2f}s")
+            print(f"   📋 Displaying: {len(display_table):,} rows (limited for UI)")
 
             # Step 5: Generate Excel export
-            print("  📊 Generating Excel export...")
+            print(f"\n⏱️  STEP 5/5: Generating Excel export...")
+            print(f"   📄 Excel size: {result_count:,} rows × 54 columns = {result_count * 54:,} cells")
+            if result_count > 50000:
+                print(f"   ⚠️  Large Excel file - this may take 15-30 seconds...")
+            step_start = time.time()
             excel_file = self.excel_exporter.generate_excel(
                 parsed,
                 results,
                 narrative
             )
-            print(f"  ✅ Excel file generated: {excel_file}")
+            step_time = time.time() - step_start
+            print(f"   ✅ Excel generated in {step_time:.2f}s")
+            print(f"   💾 File: {excel_file.split('/')[-1]}")
+
+            # Calculate total time
+            total_time = time.time() - query_start
 
             # Prepare metadata
             metadata = {
@@ -125,7 +154,9 @@ class AnalyticsOrchestrator:
                 'excel_filename': excel_file.split('/')[-1]
             }
 
-            print("✅ Query processed successfully!\n")
+            print(f"\n{'='*80}")
+            print(f"✅ QUERY COMPLETED SUCCESSFULLY in {total_time:.2f}s")
+            print(f"{'='*80}\n")
 
             return {
                 'success': True,
