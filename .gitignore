@@ -24,6 +24,7 @@ ENV/
 data/raw/
 data/processed/*.parquet
 data/processed/*.csv
+data/processed/*.pkl
 *.parquet
 *.csv
 
@@ -61,4 +62,13 @@ htmlcov/
 # Gradio
 flagged/
 
+# Excel exports (can be large)
+exports/*.xlsx
+
 CLAUDE.MD
+
+
+.env
+.env.example
+
+CLAUDE.md
