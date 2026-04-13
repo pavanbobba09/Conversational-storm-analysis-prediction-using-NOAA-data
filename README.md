@@ -6,10 +6,12 @@ A natural language interface for searching and analyzing 30 years of historical 
 [![License](https://img.shields.io/badge/License-Educational-green.svg)](LICENSE)
 [![NOAA Data](https://img.shields.io/badge/Data-NOAA%20Storm%20Events-orange.svg)](https://www.ncdc.noaa.gov/stormevents/)
 [![Powered by Groq](https://img.shields.io/badge/AI-Groq%20LLaMA-purple.svg)](https://groq.com/)
+[![Polars](https://img.shields.io/badge/Engine-Polars-red.svg)](https://pola.rs/)
+[![Pickle Cache](https://img.shields.io/badge/Cache-Pickle-yellow.svg)](https://docs.python.org/3/library/pickle.html)
 
 ---
 
-## ⚠️ Important: This is a Historical Data Retrieval System
+## Important: This is a Historical Data Retrieval System
 
 This system **retrieves and analyzes actual historical storm records** from the NOAA database (1996-2025). It does **NOT** predict future storms or provide weather forecasts. Perfect for research, data analysis, and educational purposes.
 
@@ -68,14 +70,14 @@ Bot:  "Based on NOAA records, I found 152 tornado events across 89 locations
 
 ### Core Capabilities
 
-- 🗣️ **Natural Language Queries**: Ask questions in plain English
-- 📊 **1,117,547 Storm Events**: Complete NOAA database (1996-2025)
-- 🤖 **AI-Powered Narratives**: Groq LLM generates insightful summaries
-- 📈 **Interactive Tables**: Browse filtered data in web interface
-- 📥 **Excel Export**: Download complete data with all 54 NOAA columns
-- 🗺️ **Geographic Coverage**: All 50 US states + territories
-- ⚡ **Fast Response**: 1-3 second query processing
-- 🔍 **Flexible Filtering**: Event type, location, time, impact metrics
+- **Natural Language Queries**: Ask questions in plain English
+- **1,117,547 Storm Events**: Complete NOAA database (1996-2025)
+- **AI-Powered Narratives**: Groq LLM generates insightful summaries
+- **Interactive Tables**: Browse filtered data in web interface
+- **Excel Export**: Download complete data with all 54 NOAA columns
+- **Geographic Coverage**: All 50 US states + territories
+- **Fast Response**: 1-3 second query processing
+- **Flexible Filtering**: Event type, location, time, impact metrics
 
 ### Query Types Supported
 
@@ -283,7 +285,7 @@ Every query generates a comprehensive Excel workbook perfect for research and an
 - Key statistics (total events, deaths, injuries, damage)
 - Date range and geographic coverage
 
-### Sheet 2: Data (⭐ Main Research Output)
+### Sheet 2: Data (Main Research Output)
 - **ALL matching events** (no row limit)
 - **ALL 54 NOAA columns** (complete, unmodified data)
 - Includes: dates, locations, coordinates, event types, magnitudes, impacts, narratives
@@ -493,10 +495,10 @@ Access Date: [Your access date]
 ```
 
 **Data Integrity:**
-- ✅ Complete NOAA records preserved in Excel exports
-- ✅ All 54 original columns included
-- ✅ No data modifications or transformations
-- ✅ Clear data provenance documentation
+- Complete NOAA records preserved in Excel exports
+- All 54 original columns included
+- No data modifications or transformations
+- Clear data provenance documentation
 
 ---
 
@@ -526,14 +528,14 @@ Access Date: [Your access date]
 
 ### Recommended Use Cases
 
-✅ **Good For:**
+**Good For:**
 - Research and data analysis
 - Historical trend identification
 - Educational purposes
 - Risk assessment planning
 - Insurance data analysis
 
-❌ **Not For:**
+**Not For:**
 - Weather forecasting
 - Real-time storm warnings
 - Prediction of future events
@@ -621,11 +623,11 @@ This is an educational project. For questions or suggestions, please open an iss
 
 ## System Status
 
-- ✅ **Operational:** Fully functional analytics system
-- ✅ **Data:** 1,117,547 NOAA storm events (1996-2025)
-- ✅ **AI:** Groq LLaMA 3.3 70B integration
-- ✅ **Export:** Complete Excel data generation
-- ✅ **UI:** Gradio web interface (port 7860)
+- **Operational:** Fully functional analytics system
+- **Data:** 1,117,547 NOAA storm events (1996-2025)
+- **AI:** Groq LLaMA 3.3 70B integration
+- **Export:** Complete Excel data generation
+- **UI:** Gradio web interface (port 7860)
 
 ---
 
@@ -639,9 +641,9 @@ This is an educational project. For questions or suggestions, please open an iss
 
 ---
 
-**⚡ Fast • 🎯 Accurate • 📊 Research-Ready • 🤖 AI-Powered**
+**Fast • Accurate • Research-Ready • AI-Powered**
 
-**Built with ❤️ for storm data researchers and analysts**
+**Built for storm data researchers and analysts**
 
 ---
 
