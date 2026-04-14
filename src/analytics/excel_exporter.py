@@ -57,7 +57,7 @@ class ExcelExporter:
         filepath = os.path.join(self.output_dir, filename)
 
         num_rows = len(results['data'])
-        print(f"      📄 Creating Excel workbook with {num_rows:,} data rows...")
+        print(f"      [EXCEL] Creating workbook with {num_rows:,} data rows...")
 
         # Create workbook
         start = time.time()
@@ -68,25 +68,25 @@ class ExcelExporter:
             wb.remove(wb['Sheet'])
 
         # Sheet 1: Summary
-        print(f"      📝 Sheet 1/3: Creating summary sheet...")
+        print(f"      [EXCEL] Sheet 1/3: Creating summary sheet...")
         sheet_start = time.time()
         self._create_summary_sheet(wb, parsed_query, results, narrative)
-        print(f"         ✓ Summary sheet created in {time.time() - sheet_start:.2f}s")
+        print(f"         [OK] Summary sheet created in {time.time() - sheet_start:.2f}s")
 
         # Sheet 2: Data (EXACT NOAA RECORDS)
-        print(f"      📊 Sheet 2/3: Writing {num_rows:,} NOAA records (54 columns)...")
+        print(f"      [EXCEL] Sheet 2/3: Writing {num_rows:,} NOAA records (54 columns)...")
         sheet_start = time.time()
         self._create_data_sheet(wb, results['data'])
-        print(f"         ✓ Data sheet created in {time.time() - sheet_start:.2f}s")
+        print(f"         [OK] Data sheet created in {time.time() - sheet_start:.2f}s")
 
         # Sheet 3: Metadata
-        print(f"      📋 Sheet 3/3: Creating metadata sheet...")
+        print(f"      [EXCEL] Sheet 3/3: Creating metadata sheet...")
         sheet_start = time.time()
         self._create_metadata_sheet(wb, parsed_query, results)
-        print(f"         ✓ Metadata sheet created in {time.time() - sheet_start:.2f}s")
+        print(f"         [OK] Metadata sheet created in {time.time() - sheet_start:.2f}s")
 
         # Save workbook
-        print(f"      💾 Saving Excel file to disk...")
+        print(f"      [EXCEL] Saving file to disk...")
         save_start = time.time()
         wb.save(filepath)
         save_time = time.time() - save_start
@@ -94,9 +94,9 @@ class ExcelExporter:
         file_size_mb = os.path.getsize(filepath) / (1024 * 1024)
         total_time = time.time() - start
 
-        print(f"         ✓ File saved in {save_time:.2f}s")
-        print(f"      📦 Excel file size: {file_size_mb:.2f} MB")
-        print(f"      ⏱️  Total Excel generation time: {total_time:.2f}s")
+        print(f"         [OK] File saved in {save_time:.2f}s")
+        print(f"      [SIZE] Excel file size: {file_size_mb:.2f} MB")
+        print(f"      [TIME] Total Excel generation: {total_time:.2f}s")
 
         return filepath
 

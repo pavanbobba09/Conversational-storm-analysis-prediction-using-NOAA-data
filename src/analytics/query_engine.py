@@ -41,7 +41,7 @@ class StormQueryEngine:
         self.use_polars = use_polars or env_use_polars
 
         if self.use_polars and not POLARS_AVAILABLE:
-            print("⚠️  Polars not installed - falling back to pandas")
+            print("[WARN] Polars not installed - falling back to pandas")
             self.use_polars = False
 
         if use_cache and data_path is None:
@@ -50,7 +50,7 @@ class StormQueryEngine:
             print(f"Loading NOAA storm data from cache (backend: {'Polars' if self.use_polars else 'pandas'})...")
             cache_manager = StormDataCacheManager()
             self.df = cache_manager.load_data()
-            print(f"✅ Loaded {len(self.df):,} storm events from cache")
+            print(f"[OK] Loaded {len(self.df):,} storm events from cache")
         else:
             # Legacy: direct parquet load
             print(f"Loading NOAA storm data from {data_path} (backend: {'Polars' if self.use_polars else 'pandas'})...")
@@ -133,7 +133,7 @@ class StormQueryEngine:
         import time
 
         backend = "Polars" if (self.use_polars and self.df_polars is not None) else "Pandas"
-        print(f"      🔧 Using {backend} backend for filtering...")
+        print(f"      [ENGINE] Using {backend} backend for filtering...")
 
         start = time.time()
         if self.use_polars and self.df_polars is not None:
@@ -142,7 +142,7 @@ class StormQueryEngine:
             result = self._apply_filters_pandas(filters)
 
         elapsed = time.time() - start
-        print(f"      ⚡ Filtered 1.9M records → {len(result):,} results in {elapsed:.3f}s using {backend}")
+        print(f"      [PERF] Filtered 1.9M records -> {len(result):,} results in {elapsed:.3f}s using {backend}")
 
         return result
 

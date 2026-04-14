@@ -33,34 +33,34 @@ class AnalyticsOrchestrator:
             api_key: Groq API key (uses config if not provided)
             data_path: Path to NOAA data file
         """
-        print("🔄 Initializing Storm Analytics Chatbot...")
+        print("[INIT] Initializing Storm Analytics Chatbot...")
 
         # Initialize components
         try:
             self.parser = GroqQueryParser(api_key=api_key)
-            print("✅ Query parser initialized (Groq)")
+            print("[OK] Query parser initialized (Groq)")
         except ValueError as e:
-            print(f"❌ {e}")
+            print(f"[ERROR] {e}")
             raise
 
         # Use cache manager for fast pickle loading (3x faster than parquet)
         self.engine = StormQueryEngine(data_path=None, use_cache=True)
-        print("✅ Query engine initialized")
+        print("[OK] Query engine initialized")
 
         try:
             self.response_generator = AnalyticsResponseGenerator(api_key=api_key)
-            print("✅ Response generator initialized (Groq)")
+            print("[OK] Response generator initialized (Groq)")
         except ValueError as e:
-            print(f"❌ {e}")
+            print(f"[ERROR] {e}")
             raise
 
         self.table_formatter = TableFormatter()
-        print("✅ Table formatter initialized")
+        print("[OK] Table formatter initialized")
 
         self.excel_exporter = ExcelExporter()
-        print("✅ Excel exporter initialized")
+        print("[OK] Excel exporter initialized")
 
-        print("🎉 Storm Analytics Chatbot ready!\n")
+        print("[READY] Storm Analytics Chatbot ready!\n")
 
     def process_query(self, query: str) -> Dict:
         """
@@ -84,38 +84,38 @@ class AnalyticsOrchestrator:
         try:
             query_start = time.time()
             print(f"\n{'='*80}")
-            print(f"📝 PROCESSING QUERY: \"{query}\"")
+            print(f"[QUERY] PROCESSING: \"{query}\"")
             print(f"{'='*80}")
 
             # Step 1: Parse query with Groq
-            print("\n⏱️  STEP 1/5: Parsing query with Groq LLM...")
+            print("\n[STEP 1/5] Parsing query with Groq LLM...")
             step_start = time.time()
             parsed = self.parser.parse(query)
             step_time = time.time() - step_start
-            print(f"   ✅ Parsed successfully in {step_time:.2f}s")
-            print(f"   📋 Query type: {parsed['query_type']}")
-            print(f"   🔍 Filters: {parsed.get('filters', {})}")
+            print(f"   [OK] Parsed successfully in {step_time:.2f}s")
+            print(f"   [INFO] Query type: {parsed['query_type']}")
+            print(f"   [INFO] Filters: {parsed.get('filters', {})}")
 
             # Step 2: Execute query on NOAA data
-            print(f"\n⏱️  STEP 2/5: Filtering 1.9M NOAA records...")
+            print(f"\n[STEP 2/5] Filtering 1.9M NOAA records...")
             step_start = time.time()
             results = self.engine.execute_query(parsed)
             step_time = time.time() - step_start
             result_count = results['summary']['total_events']
-            print(f"   ✅ Filtered data in {step_time:.2f}s")
-            print(f"   📊 Results: {result_count:,} events found")
+            print(f"   [OK] Filtered data in {step_time:.2f}s")
+            print(f"   [INFO] Results: {result_count:,} events found")
             if result_count > 10000:
-                print(f"   ⚠️  Large result set ({result_count:,} rows) - Excel generation will take longer")
+                print(f"   [WARN] Large result set ({result_count:,} rows) - Excel generation will take longer")
 
             # Step 3: Generate narrative with Groq
-            print(f"\n⏱️  STEP 3/5: Generating narrative with Groq LLM...")
+            print(f"\n[STEP 3/5] Generating narrative with Groq LLM...")
             step_start = time.time()
             narrative = self.response_generator.generate_response(parsed, results)
             step_time = time.time() - step_start
-            print(f"   ✅ Narrative generated in {step_time:.2f}s")
+            print(f"   [OK] Narrative generated in {step_time:.2f}s")
 
             # Step 4: Format table for display
-            print(f"\n⏱️  STEP 4/5: Formatting table for display...")
+            print(f"\n[STEP 4/5] Formatting table for display...")
             step_start = time.time()
             display_table = self.table_formatter.format_for_display(
                 results['data'],
@@ -123,14 +123,14 @@ class AnalyticsOrchestrator:
                 results.get('aggregated')
             )
             step_time = time.time() - step_start
-            print(f"   ✅ Table formatted in {step_time:.2f}s")
-            print(f"   📋 Displaying: {len(display_table):,} rows (limited for UI)")
+            print(f"   [OK] Table formatted in {step_time:.2f}s")
+            print(f"   [INFO] Displaying: {len(display_table):,} rows (limited for UI)")
 
             # Step 5: Generate Excel export
-            print(f"\n⏱️  STEP 5/5: Generating Excel export...")
-            print(f"   📄 Excel size: {result_count:,} rows × 54 columns = {result_count * 54:,} cells")
+            print(f"\n[STEP 5/5] Generating Excel export...")
+            print(f"   [INFO] Excel size: {result_count:,} rows x 54 columns = {result_count * 54:,} cells")
             if result_count > 50000:
-                print(f"   ⚠️  Large Excel file - this may take 15-30 seconds...")
+                print(f"   [WARN] Large Excel file - this may take 15-30 seconds...")
             step_start = time.time()
             excel_file = self.excel_exporter.generate_excel(
                 parsed,
@@ -138,8 +138,8 @@ class AnalyticsOrchestrator:
                 narrative
             )
             step_time = time.time() - step_start
-            print(f"   ✅ Excel generated in {step_time:.2f}s")
-            print(f"   💾 File: {excel_file.split('/')[-1]}")
+            print(f"   [OK] Excel generated in {step_time:.2f}s")
+            print(f"   [FILE] {excel_file.split('/')[-1]}")
 
             # Calculate total time
             total_time = time.time() - query_start
@@ -155,7 +155,7 @@ class AnalyticsOrchestrator:
             }
 
             print(f"\n{'='*80}")
-            print(f"✅ QUERY COMPLETED SUCCESSFULLY in {total_time:.2f}s")
+            print(f"[DONE] QUERY COMPLETED SUCCESSFULLY in {total_time:.2f}s")
             print(f"{'='*80}\n")
 
             return {
@@ -168,7 +168,7 @@ class AnalyticsOrchestrator:
             }
 
         except Exception as e:
-            print(f"❌ Error processing query: {e}\n")
+            print(f"[ERROR] Error processing query: {e}\n")
             return {
                 'success': False,
                 'narrative': f"**Error:** {str(e)}\n\nPlease try rephrasing your question or check your API key configuration.",
