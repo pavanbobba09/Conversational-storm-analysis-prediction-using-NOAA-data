@@ -1,0 +1,26 @@
+{
+  "permissions": {
+    "allow": [
+      "Bash(brew install:*)",
+      "Bash(brew services start:*)",
+      "Bash(psql:*)",
+      "Bash(brew list:*)",
+      "Bash(ln -s:*)",
+      "Bash(brew uninstall:*)",
+      "Bash(brew services stop:*)",
+      "Bash(python3 -m venv:*)",
+      "Bash(/usr/bin/python3:*)",
+      "Bash(pip3 install:*)",
+      "Bash(python3:*)",
+      "Bash(ls:*)",
+      "Bash(tee:*)",
+      "Bash(ps:*)",
+      "Bash(python:*)",
+      "Bash(kill:*)",
+      "Bash(git check-ignore:*)",
+      "Bash(git checkout:*)",
+      "Bash(git config:*)",
+      "Bash(git add:*)"
+    ]
+  }
+}
